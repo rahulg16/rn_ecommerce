@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import Scale from './Scale'
 
@@ -14,7 +14,7 @@ const Button = (props: ButtonProps) => {
     const {title, onPress, isOutline, style} = props;
 
   return (
-    <View style={[styles.btn, isOutline ? styles.outlineBtn : styles.actionBtn, style]}>
+    <TouchableOpacity style={[styles.btn, isOutline ? styles.outlineBtn : styles.actionBtn, style]} onPress={onPress}>
       <Text
         style={{
           textAlign: 'center',
@@ -23,7 +23,7 @@ const Button = (props: ButtonProps) => {
         }}>
         {title}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 

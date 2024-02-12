@@ -6,6 +6,7 @@ import {
   Image,
   Touchable,
   TouchableOpacity,
+  FlatList
 } from 'react-native';
 import React from 'react';
 import Scale from '../components/Scale';
@@ -14,85 +15,164 @@ import PlaceHolderImage from '../assets/product_placeholder.png';
 import plusIcon from '../assets/plus_icon.png';
 import minusIcon from '../assets/minus_icon.png';
 import Button from '../components/Button';
+import cartEmpty from "../assets/cart_empty.png"
 
-const CartScreen = () => {
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  addToCart,
+  decrementQuantity,
+  incrementQuantity,
+  removeFromCart,
+} from '../store/CartReducer';
+
+interface CartScreenProps {
+  navigation: any
+}
+
+const CartScreen = (props: CartScreenProps) => {
+
+  let {navigation} = props;
+  const cart = useSelector(state => state.cart.cart);
+  const dispatch = useDispatch();
+
+  const increaseQuantity = item => {
+    dispatch(incrementQuantity(item));
+  };
+  const decreaseQuantity = item => {
+    if (item.quantity == 1) {
+      dispatch(removeFromCart(item));
+    } else {
+      dispatch(decrementQuantity(item));
+    }
+  };
+
+  const getSubTotal = () => {
+    let subTotal = 0;
+
+    for(let i = 0; i < cart.length; i++) {
+      subTotal += cart[i].price * cart[i].quantity;
+      console.log('subtotal', subTotal, cart[i]);
+    }
+    // console.log("subtotal", subTotal)
+    return Math.round(subTotal)
+  }
+
   return (
     <SafeAreaView style={{flex: 1, marginHorizontal: 20}}>
-      <Header isBack title="Shopping Cart" />
+      <Header isBack title="Shopping Cart" navigation={navigation} />
 
       <View style={{marginVertical: Scale(30)}}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            borderColor: 'red',
-            borderWidth: 1,
-            justifyContent: 'space-between',
-          }}>
-          <View style={{flexDirection: 'row'}}>
-            <Image
-              source={PlaceHolderImage}
-              style={{width: Scale(25), height: Scale(25)}}
-            />
+        <FlatList
+          data={cart}
+          renderItem={({item, index}) => {
+            let productImage = item.thumbnail;
+            let price = item.price;
+            let quantity = item.quantity;
+            let title = item.title;
 
-            <View style={{marginLeft: Scale(20)}}>
-              <Text>Banana</Text>
-              <Text>$7.60</Text>
-            </View>
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderColor: 'red',
-              borderWidth: 1,
-              justifyContent: 'space-between',
-            }}>
-            <TouchableOpacity style={styles.btn} onPress={() => {}}>
-              <Image
-                source={minusIcon}
-                style={{width: Scale(20), height: Scale(4)}}
-              />
-            </TouchableOpacity>
-
-            <Text
-              style={{
-                textAlign: 'center',
-                marginHorizontal: Scale(15),
-                fontSize: Scale(14),
-              }}>
-              1
-            </Text>
-
-            <TouchableOpacity style={styles.btn} onPress={() => {}}>
-              <Image
-                source={plusIcon}
+            return (
+              <View
                 style={{
-                  width: Scale(20),
-                  height: Scale(20),
-                  tintColor: 'black',
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: Scale(10),
+                }}>
+                <View style={{flexDirection: 'row'}}>
+                  <Image
+                    source={{uri: productImage}}
+                    style={{
+                      width: Scale(45),
+                      height: Scale(45),
+                      borderRadius: 5,
+                    }}
+                  />
+
+                  <View style={{marginLeft: Scale(20)}}>
+                    <Text
+                      style={{
+                        color: '#1E222B',
+                        fontSize: Scale(14),
+                        marginBottom: Scale(4),
+                      }}>
+                      {title}
+                    </Text>
+                    <Text style={{color: '#1E222B', fontSize: Scale(14)}}>
+                      ${price}
+                    </Text>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                  <TouchableOpacity
+                    style={styles.btn}
+                    onPress={() => decreaseQuantity(item)}>
+                    <Image
+                      source={minusIcon}
+                      style={{width: Scale(20), height: Scale(4)}}
+                    />
+                  </TouchableOpacity>
+
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      marginHorizontal: Scale(15),
+                      fontSize: Scale(14),
+                    }}>
+                    {quantity}
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.btn}
+                    onPress={() => increaseQuantity(item)}>
+                    <Image
+                      source={plusIcon}
+                      style={{
+                        width: Scale(20),
+                        height: Scale(20),
+                        tintColor: 'black',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          }}
+          ListEmptyComponent={() => {
+            return (
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <Image source={cartEmpty} style={{width: 300, height: 300}} />
+                <Text style={{fontSize: Scale(20), fontWeight: 'bold'}}>
+                  Your Cart is Currently Empty
+                </Text>
+              </View>
+            );
+          }}
+          ItemSeparatorComponent={() => {
+            return <View style={{borderColor: '#EBEBFB', borderWidth: 1}} />;
+          }}
+        />
       </View>
 
       <View style={styles.checkoutContainer}>
         <View style={styles.checkoutItem}>
           <Text>Subtotal</Text>
-          <Text>$35.96</Text>
+          <Text>${getSubTotal()}</Text>
         </View>
 
         <View style={styles.checkoutItem}>
           <Text>Delivery</Text>
-          <Text>$35.96</Text>
+          <Text>${cart.length > 0 ? "35.96" : "0"}</Text>
         </View>
 
         <View style={styles.checkoutItem}>
           <Text>Total</Text>
-          <Text>$35.96</Text>
+          <Text>${(getSubTotal() + (cart.length > 0 ? 35.96 : 0)).toFixed(2)}</Text>
         </View>
 
         <Button title="Proceed To Checkout" />

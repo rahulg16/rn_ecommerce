@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Image,
   FlatList,
+  ActivityIndicator
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 
@@ -12,6 +13,14 @@ import Header from '../components/Header';
 import Scale from '../components/Scale';
 import SearchIcon from '../assets/search_icon.png';
 import Product from '../components/Product';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  addToCart,
+  decrementQuantity,
+  incrementQuantity,
+  removeFromCart,
+} from '../store/CartReducer';
+
 // import 
 
 interface HomeScreen {
@@ -20,8 +29,14 @@ interface HomeScreen {
 
 const HomeScreen = (props: HomeScreen) => {
   let {navigation} = props;
+  const cart = useSelector(state => state.cart.cart);
+  const dispatch = useDispatch();
+  console.log(
+    "cart", cart
+  )
 
   let [allProducts, setAllProducts] = useState([]);
+  let [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getAllProducts();
@@ -30,18 +45,20 @@ const HomeScreen = (props: HomeScreen) => {
   function getAllProducts() {
     fetch('https://dummyjson.com/products')
       .then(res => res.json())
-      .then(data => setAllProducts(data?.products));
+      .then(data => {
+        setAllProducts(data?.products);
+        setLoading(false)
+      });
   }
 
+  const addItemToCart = item => {
+    dispatch(addToCart(item));
+  };
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={styles.headerContainer}>
-        <Header 
-          isHome 
-          isCart 
-          count={2} 
-          navigation={navigation} 
-        />
+        <Header isHome isCart count={cart?.length} navigation={navigation} />
 
         <View style={styles.searchBarContainer}>
           <Image
@@ -75,34 +92,41 @@ const HomeScreen = (props: HomeScreen) => {
         </View>
       </View>
 
-      <View style={styles.productsContainer}>
-        <Text
-          style={{
-            fontSize: Scale(30),
-            color: '#1E222B',
-            marginLeft: Scale(20),
-            marginBottom: Scale(10),
-          }}>
-          Recommended
-        </Text>
-
-        <View style={{flex: 1}}>
-          <FlatList
-            data={allProducts}
-            renderItem={({item, index}) => (
-              <Product
-                key={index}
-                item={item}
-                index={index}
-                navigation={navigation}
-              />
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-          />
+      {loading ? (
+        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+          <ActivityIndicator color={'#FFC83A'} size={"large"}/>
         </View>
-      </View>
+      ) : (
+        <View style={styles.productsContainer}>
+          <Text
+            style={{
+              fontSize: Scale(30),
+              color: '#1E222B',
+              marginLeft: Scale(20),
+              marginBottom: Scale(10),
+            }}>
+            Recommended
+          </Text>
+
+          <View style={{flex: 1}}>
+            <FlatList
+              data={allProducts}
+              renderItem={({item, index}) => (
+                <Product
+                  key={index}
+                  item={item}
+                  index={index}
+                  navigation={navigation}
+                  onAddPress={() => addItemToCart(item)}
+                />
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              numColumns={2}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -111,6 +135,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     paddingHorizontal: Scale(20),
     backgroundColor: '#2A4BA0',
+    paddingTop: Scale(20)
   },
   searchBarContainer: {
     flexDirection: 'row',

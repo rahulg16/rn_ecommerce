@@ -16,7 +16,7 @@ interface HeaderProps {
 
 const Header = (props: HeaderProps) => {
 
-  const {isHome, navigation, isBack, title, isCart, count} = props
+  const {isHome, navigation, isBack, title, isCart, count, onPress} = props;
 
   return (
     <SafeAreaView
@@ -43,7 +43,7 @@ const Header = (props: HeaderProps) => {
         </View>
 
         {isCart && (
-          <View>
+          <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
             <Image
               source={cartIcon}
               style={[styles.cartIcon, isHome && {tintColor: '#F8F9FB'}]}
@@ -52,7 +52,7 @@ const Header = (props: HeaderProps) => {
             {Number(count) > 0 && <View style={styles.cartCount}>
               <Text style={{color: '#F8F9FB'}}>{count}</Text>
             </View>}
-          </View>
+          </TouchableOpacity>
         )}
       </View>
     </SafeAreaView>

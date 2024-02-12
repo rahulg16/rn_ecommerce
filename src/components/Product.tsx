@@ -5,22 +5,20 @@ import heartIcon from '../assets/heart.png';
 import plusIcon from '../assets/plus_icon.png';
 import Scale from './Scale';
 
-
 interface ProductProps {
-    item: any,
-    index: number,
-    navigation: any
+  item: any;
+  index: number;
+  navigation: any;
+  onAddPress?: () => void;
 }
 
-
 const Product = (props: ProductProps) => {
+  let {item, index, navigation, onAddPress} = props;
 
-    let {item, index, navigation} = props;
-
-    let productName = item.title;
-    let productPrice = item.price;
-    let thumbnail = item.thumbnail;
-    let productID = item.id;
+  let productName = item.title;
+  let productPrice = item.price;
+  let thumbnail = item.thumbnail;
+  let productID = item.id;
 
   return (
     <TouchableOpacity
@@ -63,7 +61,7 @@ const Product = (props: ProductProps) => {
           </Text>
         </View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onAddPress}>
           <View style={styles.addBtn}>
             <Image
               source={plusIcon}
@@ -78,10 +76,10 @@ const Product = (props: ProductProps) => {
 
 const styles = StyleSheet.create({
   productImage: {
-    width: "100%",
+    width: '100%',
     height: Scale(160),
     borderTopLeftRadius: 20,
-    borderTopRightRadius: 20
+    borderTopRightRadius: 20,
   },
   productContainer: {
     // width: '50%',
@@ -89,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E7ECF0',
     marginHorizontal: Scale(14),
     marginVertical: Scale(14),
-    flex: 1
+    flex: 1,
   },
   addBtn: {
     backgroundColor: '#2A4BA0',
