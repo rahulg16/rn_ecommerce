@@ -86,8 +86,9 @@ const CartScreen = (props: CartScreenProps) => {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   paddingVertical: Scale(10),
+                  flex: 1
                 }}>
-                <View style={{flexDirection: 'row'}}>
+                <View style={{flexDirection: 'row', flex: 1}}>
                   <Image
                     source={{uri: productImage}}
                     style={{
@@ -102,7 +103,7 @@ const CartScreen = (props: CartScreenProps) => {
                       style={{
                         color: '#1E222B',
                         fontSize: Scale(14),
-                        marginBottom: Scale(4),
+                        marginBottom: Scale(4)
                       }}>
                       {title}
                     </Text>
