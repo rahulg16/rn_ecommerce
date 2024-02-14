@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React from 'react'
 import Scale from './Scale'
 
@@ -7,22 +7,33 @@ interface ButtonProps {
     onPress?: () => void;
     isOutline?: boolean;
     style?: {};
+    loading?: boolean;
 }
 
 const Button = (props: ButtonProps) => {
 
-    const {title, onPress, isOutline, style} = props;
+    const {title, onPress, isOutline, style, loading} = props;
 
   return (
-    <TouchableOpacity style={[styles.btn, isOutline ? styles.outlineBtn : styles.actionBtn, style]} onPress={onPress}>
-      <Text
-        style={{
-          textAlign: 'center',
-          color: isOutline ? '#2A4BA0' : 'white',
-          fontWeight: 'bold',
-        }}>
-        {title}
-      </Text>
+    <TouchableOpacity
+      style={[
+        styles.btn,
+        isOutline ? styles.outlineBtn : styles.actionBtn,
+        style,
+      ]}
+      onPress={onPress}>
+      {loading ? (
+        <ActivityIndicator size={'small'} color={'#F9B023'} />
+      ) : (
+        <Text
+          style={{
+            textAlign: 'center',
+            color: isOutline ? '#2A4BA0' : 'white',
+            fontWeight: 'bold',
+          }}>
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }

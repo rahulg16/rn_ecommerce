@@ -8,10 +8,9 @@ import {
   TouchableOpacity,
   FlatList
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import Scale from '../components/Scale';
 import Header from '../components/Header';
-import PlaceHolderImage from '../assets/product_placeholder.png';
 import plusIcon from '../assets/plus_icon.png';
 import minusIcon from '../assets/minus_icon.png';
 import Button from '../components/Button';
@@ -35,6 +34,8 @@ const CartScreen = (props: CartScreenProps) => {
   const cart = useSelector(state => state.cart.cart);
   const dispatch = useDispatch();
 
+  let [loading, setLoading] = useState(false);
+
   const increaseQuantity = item => {
     dispatch(incrementQuantity(item));
   };
@@ -55,6 +56,14 @@ const CartScreen = (props: CartScreenProps) => {
     }
     // console.log("subtotal", subTotal)
     return Math.round(subTotal)
+  }
+
+  const processPurchase = () => {
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000);
   }
 
   return (
@@ -175,7 +184,7 @@ const CartScreen = (props: CartScreenProps) => {
           <Text>${(getSubTotal() + (cart.length > 0 ? 35.96 : 0)).toFixed(2)}</Text>
         </View>
 
-        <Button title="Proceed To Checkout" />
+        <Button title="Proceed To Checkout" loading={loading} onPress={processPurchase}/>
       </View>
     </SafeAreaView>
   );

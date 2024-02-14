@@ -14,6 +14,7 @@ import Scale from '../components/Scale';
 import Header from '../components/Header';
 import {Rating} from 'react-native-ratings';
 import favHeart from '../assets/favHeart.png';
+import heartIcon from "../assets/favoriteHeart.png"
 import Button from '../components/Button';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -22,6 +23,8 @@ import {
   incrementQuantity,
   removeFromCart,
 } from '../store/CartReducer';
+
+import {addToFavorite, removeFromFavorite} from '../store/FavReducer';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -32,11 +35,13 @@ interface ProductDetailsScreen {
 
 const ProductDetailsScreen = (props: ProductDetailsScreen) => {
   const cart = useSelector(state => state.cart.cart);
+  const favorite = useSelector(state => state.favorite.favorite);
   const dispatch = useDispatch();
 
   let [productDetails, setProductDetails] = useState({});
   let [loading, setLoading] = useState(true);
   let [sliderIndex, setSliderIndex] = useState(0);
+  let isAlreadyFav = favorite.some((product: any) => product?.id == productDetails?.id);
 
   let {id} = props?.route?.params;
   console.log('Product id', id);
@@ -63,6 +68,14 @@ const ProductDetailsScreen = (props: ProductDetailsScreen) => {
 
   const addItemToCart = item => {
     dispatch(addToCart(item));
+  };
+
+  const addToFav = item => {
+    dispatch(addToFavorite(item));
+  };
+
+  const removeFromFav = item => {
+    dispatch(removeFromFavorite(item));
   };
 
   return (
@@ -127,10 +140,12 @@ const ProductDetailsScreen = (props: ProductDetailsScreen) => {
               position: 'absolute',
               top: 18,
               right: 20,
-            }}>
+            }}
+            onPress={() => isAlreadyFav ? removeFromFav(productDetails) : addToFav(productDetails)}
+          >
             <Image
-              source={favHeart}
-              style={{width: Scale(24), height: Scale(24)}}
+              source={isAlreadyFav ? heartIcon : favHeart}
+              style={isAlreadyFav ? {width: Scale(20), height: Scale(18)} : {width: Scale(24), height: Scale(24)}}
             />
           </TouchableOpacity>
 
@@ -201,7 +216,7 @@ const ProductDetailsScreen = (props: ProductDetailsScreen) => {
             <Button
               title="Buy Now"
               style={{width: '46%'}}
-              onPress={() => props.navigation.navigate('Cart')}
+              onPress={() => props.navigation.navigate('CartScreen')}
             />
           </View>
 

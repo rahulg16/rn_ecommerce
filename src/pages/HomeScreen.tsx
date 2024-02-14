@@ -5,7 +5,10 @@ import {
   StyleSheet,
   Image,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 
@@ -16,10 +19,12 @@ import Product from '../components/Product';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   addToCart,
-  decrementQuantity,
-  incrementQuantity,
-  removeFromCart,
 } from '../store/CartReducer';
+
+import {
+  addToFavorite,
+  removeFromFavorite
+} from '../store/FavReducer'
 
 // import 
 
@@ -30,13 +35,13 @@ interface HomeScreen {
 const HomeScreen = (props: HomeScreen) => {
   let {navigation} = props;
   const cart = useSelector(state => state.cart.cart);
+  const favorite = useSelector(state => state.favorite.favorite);
   const dispatch = useDispatch();
-  console.log(
-    "cart", cart
-  )
 
   let [allProducts, setAllProducts] = useState([]);
+  let [allProductsBackup, setAllProductsBackup] = useState([]);
   let [loading, setLoading] = useState(true);
+  let [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     getAllProducts();
@@ -47,7 +52,8 @@ const HomeScreen = (props: HomeScreen) => {
       .then(res => res.json())
       .then(data => {
         setAllProducts(data?.products);
-        setLoading(false)
+        setAllProductsBackup(data?.products);
+        setLoading(false);
       });
   }
 
@@ -55,79 +61,120 @@ const HomeScreen = (props: HomeScreen) => {
     dispatch(addToCart(item));
   };
 
+  const addToFav = item => {
+    dispatch(addToFavorite(item));
+  };
+
+  const removeFromFav = item => {
+    dispatch(removeFromFavorite(item));
+  };
+
+  const searchProducts = (text: string) => {
+    if(text?.length == 0) {
+      setAllProducts(allProductsBackup)
+      setSearchTerm("")
+    } else {
+      let term = text.toLowerCase();
+      let modifiedProductsList = allProducts.filter((product: any) =>
+        product?.title?.toLowerCase()?.startsWith(term),
+      );
+
+      setAllProducts(modifiedProductsList);
+      setSearchTerm(text);
+    }
+  }
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <View style={styles.headerContainer}>
-        <Header isHome isCart count={cart?.length} navigation={navigation} />
+    <TouchableWithoutFeedback style={{flex: 1}} onPress={() => Keyboard.dismiss()}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={styles.headerContainer}>
+          <Header isHome isCart count={cart?.length} navigation={navigation} />
 
-        <View style={styles.searchBarContainer}>
-          <Image
-            source={SearchIcon}
-            style={{
-              width: Scale(18),
-              height: Scale(18),
-              marginRight: Scale(16),
-            }}
-          />
+          <View style={styles.searchBarContainer}>
+            <Image
+              source={SearchIcon}
+              style={{
+                width: Scale(18),
+                height: Scale(18),
+                marginRight: Scale(16),
+              }}
+            />
 
-          <Text style={{color: '#8891A5'}}>Search Products or store</Text>
-        </View>
-
-        <View style={styles.geographyInfoContainer}>
-          <View>
-            <Text style={{color: '#C5CDD2', textTransform: 'uppercase'}}>
-              Delivery To
-            </Text>
-            <Text style={{color: '#F8F9FB', fontSize: Scale(14)}}>
-              Green Way 3000, Sylhet
-            </Text>
-          </View>
-
-          <View>
-            <Text style={{color: '#C5CDD2', textTransform: 'uppercase'}}>
-              Within
-            </Text>
-            <Text style={{color: '#F8F9FB', fontSize: Scale(14)}}>1 Hour</Text>
-          </View>
-        </View>
-      </View>
-
-      {loading ? (
-        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-          <ActivityIndicator color={'#FFC83A'} size={"large"}/>
-        </View>
-      ) : (
-        <View style={styles.productsContainer}>
-          <Text
-            style={{
-              fontSize: Scale(30),
-              color: '#1E222B',
-              marginLeft: Scale(20),
-              marginBottom: Scale(10),
-            }}>
-            Recommended
-          </Text>
-
-          <View style={{flex: 1}}>
-            <FlatList
-              data={allProducts}
-              renderItem={({item, index}) => (
-                <Product
-                  key={index}
-                  item={item}
-                  index={index}
-                  navigation={navigation}
-                  onAddPress={() => addItemToCart(item)}
-                />
-              )}
-              keyExtractor={(item, index) => index.toString()}
-              numColumns={2}
-              showsVerticalScrollIndicator={false}
+            <TextInput
+              placeholder="Search Products or store"
+              placeholderTextColor={'#8891A5'}
+              value={searchTerm}
+              onChangeText={searchProducts}
+              style={{flex: 1, color: "white"}}
             />
           </View>
+
+          <View style={styles.geographyInfoContainer}>
+            <View>
+              <Text style={{color: '#C5CDD2', textTransform: 'uppercase'}}>
+                Delivery To
+              </Text>
+              <Text style={{color: '#F8F9FB', fontSize: Scale(14)}}>
+                Green Way 3000, Sylhet
+              </Text>
+            </View>
+
+            <View>
+              <Text style={{color: '#C5CDD2', textTransform: 'uppercase'}}>
+                Within
+              </Text>
+              <Text style={{color: '#F8F9FB', fontSize: Scale(14)}}>
+                1 Hour
+              </Text>
+            </View>
+          </View>
         </View>
-      )}
-    </SafeAreaView>
+
+        {loading ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <ActivityIndicator color={'#FFC83A'} size={'large'} />
+          </View>
+        ) : (
+          <View style={styles.productsContainer}>
+            <Text
+              style={{
+                fontSize: Scale(30),
+                color: '#1E222B',
+                marginLeft: Scale(20),
+                marginBottom: Scale(10),
+              }}>
+              Recommended
+            </Text>
+
+            <View style={{flex: 1}}>
+              <FlatList
+                data={allProducts}
+                renderItem={({item, index}) => {
+
+                  let isAlreadyFav = favorite.some((product: any) => product?.id == item?.id)
+
+                  return (
+                    <Product
+                      key={index}
+                      item={item}
+                      index={index}
+                      isFavorite={isAlreadyFav}
+                      navigation={navigation}
+                      onAddPress={() => addItemToCart(item)}
+                      onFavPress={() => isAlreadyFav ? removeFromFav(item) : addToFav(item)}
+                    />
+                  );
+                }}
+                keyExtractor={(item, index) => index.toString()}
+                numColumns={2}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          </View>
+        )}
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

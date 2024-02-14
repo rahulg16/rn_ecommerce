@@ -1,19 +1,21 @@
 import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
-import placeholderImage from '../assets/product_placeholder.png';
 import heartIcon from '../assets/heart.png';
 import plusIcon from '../assets/plus_icon.png';
 import Scale from './Scale';
+import FavoriteHeart from "../assets/favoriteHeart.png"
 
 interface ProductProps {
   item: any;
   index: number;
   navigation: any;
   onAddPress?: () => void;
+  onFavPress?: () => void;
+  isFavorite?: boolean;
 }
 
 const Product = (props: ProductProps) => {
-  let {item, index, navigation, onAddPress} = props;
+  let {item, index, navigation, onAddPress, onFavPress, isFavorite} = props;
 
   let productName = item.title;
   let productPrice = item.price;
@@ -24,7 +26,7 @@ const Product = (props: ProductProps) => {
     <TouchableOpacity
       style={styles.productContainer}
       activeOpacity={0.8}
-      onPress={() => navigation.navigate('ProductDetails', {id: productID})}>
+      onPress={() => navigation.navigate('ProductDetailsScreen', {id: productID})}>
       <View
         style={{
           width: '100%',
@@ -32,17 +34,17 @@ const Product = (props: ProductProps) => {
           alignItems: 'center',
         }}>
         <Image source={{uri: thumbnail}} style={styles.productImage} />
-        <Image
-          source={heartIcon}
-          style={{
-            width: Scale(15),
-            height: Scale(14),
-            position: 'absolute',
-            left: 14,
-            top: 14,
-            zIndex: 10,
-          }}
-        />
+
+        <TouchableOpacity
+          style={{position: 'absolute', left: 14, top: 14, zIndex: 10}} onPress={onFavPress}>
+          <Image
+            source={isFavorite ? FavoriteHeart : heartIcon}
+            style={{
+              width: Scale(15),
+              height: Scale(14),
+            }}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.detailsContainer}>

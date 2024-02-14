@@ -43,7 +43,7 @@ const Header = (props: HeaderProps) => {
         </View>
 
         {isCart && (
-          <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+          <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
             <Image
               source={cartIcon}
               style={[styles.cartIcon, isHome && {tintColor: '#F8F9FB'}]}
