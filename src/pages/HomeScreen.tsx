@@ -190,7 +190,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     backgroundColor: '#153075',
     paddingHorizontal: Scale(18),
-    paddingVertical: Scale(20),
     borderRadius: 40,
     marginTop: Scale(50),
     marginBottom: Scale(20),

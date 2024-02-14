@@ -20,7 +20,7 @@ const Header = (props: HeaderProps) => {
 
   return (
     <SafeAreaView
-      style={{paddingVertical: Scale(2)}}>
+      style={{paddingVertical: Scale(10)}}>
       <View style={styles.homeHeaderContainer}>
         {isHome && <Text style={styles.nameTextStyle}>Hey, User</Text>}
 
@@ -62,7 +62,7 @@ const Header = (props: HeaderProps) => {
 const styles = StyleSheet.create({
   cartIcon: {
     width: Scale(19),
-    height: Scale(20),
+    height: Scale(22),
   },
   homeHeaderContainer: {
     justifyContent: 'space-between',

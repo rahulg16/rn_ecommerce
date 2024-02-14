@@ -216,7 +216,12 @@ const ProductDetailsScreen = (props: ProductDetailsScreen) => {
             <Button
               title="Buy Now"
               style={{width: '46%'}}
-              onPress={() => props.navigation.navigate('CartScreen')}
+              onPress={() => {
+                addItemToCart(productDetails);
+                setTimeout(() => {
+                  props.navigation.navigate('CartScreen');
+                }, 500)
+              }}
             />
           </View>
 
